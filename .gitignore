@@ -1,0 +1,29 @@
+*~
+**/.DS_Store
+
+# data directories
+derived_data/
+source_data/
+figures/
+logs/
+
+# symbolic links to data directories
+derived_data
+source_data
+figures
+logs
+
+# slurm logs
+**/slurm-*.out
+
+# r
+.Rhistory
+**/*.rds
+**/Rplots.pdf
+
+# rsubread
+**/\.Rsubread*
+**/*.tmp
+
+# snakemake
+**/\.snakemake
