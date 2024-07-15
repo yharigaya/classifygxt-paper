@@ -1,0 +1,9 @@
+---
+__default__:
+  time: "0-01:00"
+  threads: 1
+  mem: 2G
+  queue: "general"
+  error: "../logs/vis/%x_%j_%N.err"
+  output: "../logs/vis/%x_%j_%N.log"
+

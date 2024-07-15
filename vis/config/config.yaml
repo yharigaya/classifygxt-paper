@@ -1,0 +1,5 @@
+sim_dir: "../derived_data/sim/"
+wntrna_dir: "../derived_data/wntrna/"
+wntatac_dir: "../derived_data/wntatac/"
+dir: "../derived_data/vis/"
+fig_dir: "../figures/vis/"
