@@ -9,7 +9,7 @@ file2 <- "../derived_data/wntrna/aa/llk/pc10/CT99/llk.rds"
 file3 <- "../derived_data/wntatac/aa/llk/pc10/Veh/llk.rds"
 file4 <- "../derived_data/wntatac/aa/llk/pc10/CT99/llk.rds"
 
-file.vec <- c(file1, file2, file3, file4)
+file.vec <- c(file1, file2, file3, file4) 
 p.list <- vector("list", 12)
 
 for (i in seq_len(4)) {
@@ -19,7 +19,7 @@ for (i in seq_len(4)) {
     dl <- d %>%
         pivot_longer(everything())
 
-    p1 <- d %>%
+    p1 <- d %>% 
         ggplot(aes(x=lm, y=nl)) +
         geom_point(size=0.25, alpha=0.2) +
         xlab("log-LM") +
@@ -27,7 +27,7 @@ for (i in seq_len(4)) {
         coord_fixed() +
         theme_bw()
 
-    p2 <- d %>%
+    p2 <- d %>% 
         ggplot(aes(x=nl, y=anova)) +
         geom_point(size=0.25, alpha=0.2) +
         xlab("log-NL") +
@@ -35,7 +35,7 @@ for (i in seq_len(4)) {
         coord_fixed() +
         theme_bw()
 
-    p3 <- d %>%
+    p3 <- d %>% 
         ggplot(aes(x=anova, y=lm)) +
         geom_point(size=0.25, alpha=0.2) +
         xlab("log-ANOVA") +
@@ -46,9 +46,9 @@ for (i in seq_len(4)) {
     p.list[[(i - 1) * 3 + 1]] <- p1
     p.list[[(i - 1) * 3 + 2]] <- p2
     p.list[[(i - 1) * 3 + 3]] <- p3
-
+    
 }
-
+    
 # pw + plot_annotation(tag_levels="A")
 ((p.list[[1]] + p.list[[2]] + p.list[[3]]) /
     (p.list[[4]] + p.list[[5]] + p.list[[6]]) /

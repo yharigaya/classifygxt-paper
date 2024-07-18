@@ -31,7 +31,7 @@ pp <- file.vec %>%
 feat.id.vec <- sapply(data.list, function(x) x$feat.id)
 snp.id.vec <- sapply(data.list, function(x) x$snp.id)
 id.vec <- paste(feat.id.vec, snp.id.vec, sep="-")
-prev.id.vec <- paste(prev$Feature, prev$SNP, sep="-")
+prev.id.vec <- paste(prev$gene_id, prev$snp_id, sep="-")
 order.vec <- match(prev.id.vec, id.vec) %>% na.omit
 
 saveRDS(pp, file=pp.file)

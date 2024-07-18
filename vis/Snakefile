@@ -1,15 +1,20 @@
+pc = config["pc"]
+num_wntrna_pair = config["num_wntrna_pair"]
+num_wntatac_pair = config["num_wntatac_pair"]
+size = config["size"]
+
 method = ["nl", "lm", "rint"]
 gen = ["noranef", "ranef"]
 fit = ["noranef", "ranef"]
 cat = ["nogxt", "induced", "altered"]
 hp = ["rest", "opt", "perm"]
 comp = ["map-lap", "mcmc-bs"]
-pc = [10]
-num_wntrna_pair = 98
-num_wntatac_pair = 1775
-size = 10
-wntrna_start = [format(number, "04") for number in range(1, num_wntrna_pair + 1, size)] # number of pairs
-wntatac_start = [format(number, "04") for number in range(1, num_wntatac_pair + 1, size)] # number of pairs
+cond = ["Veh", "CT99"]
+
+wntrna_start = [format(number, "04")
+                for number in range(1, num_wntrna_pair + 1, size)]
+wntatac_start = [format(number, "04")
+                 for number in range(1, num_wntatac_pair + 1, size)]
 
 rule all:
     input:
@@ -44,18 +49,22 @@ rule all:
         
 rule plot_sim_rocc_vln:
     input:
-        config["sim_dir"]
-        + "mcmc-bs-hp/noranef-noranef/rocc.rds",
-        config["sim_dir"]
-        + "mcmc-bs-hp/noranef-noranef/vln.aggr.rds",
-        config["sim_dir"]
+        rocc = config["sim_dir"]
+        + "mcmc-bs/noranef-noranef/rocc.rds",
+        aggr = config["sim_dir"]
+        + "mcmc-bs/noranef-noranef/vln.aggr.rds",
+        co = config["sim_dir"]
         + "post/noranef-noranef/vln.co.rds"
     output:
         config["fig_dir"] + "sim_rocc_vln.pdf"
     shell:
         "module add r/4.1.3; "
         "Rscript plot_sim_rocc_vln.R"
-
+        " {input.rocc}"
+        " {input.aggr}"
+        " {input.co}"
+        " {output}"
+        
 rule plot_wntrna_gp:
     input:
         config["wntrna_dir"]
@@ -75,7 +84,7 @@ rule plot_wntrna_co:
     input:
         config["wntrna_dir"]
         + "pre/rsd/pc10/data.list.rds",
-        expand(config["dir"]
+        expand(config["wntrna_dir"]
                + "post/kin/pc10/{method}/"
                + "fit/complete{start}_{size}.txt",
                method = method,
@@ -88,8 +97,12 @@ rule plot_wntrna_co:
     
 rule plot_wnt_llk:
     input:
-        config["wntrna_dir"] + "aa/llk.rds",
-        config["exp_caqtl_dir"] + "aa/llk.rds"
+        expand(config["wntrna_dir"]
+               + "aa/llk/pc10/{cond}/llk.rds",
+               cond = cond),
+        expand(config["wntatac_dir"]
+               + "aa/llk/pc10/{cond}/llk.rds",
+               cond = cond),
     output:
         config["fig_dir"] + "wnt_llk.pdf" 
     shell:
@@ -147,7 +160,7 @@ rule pw_sim_hist:
         " {wildcards.comp}"
         " {wildcards.method}"
         " " + config["fig_dir"]
-        + "vis/sim/{wildcards.comp}/"
+        + "sim/{wildcards.comp}/"
         "{wildcards.method}"
         " {output}"
                 
@@ -166,9 +179,8 @@ rule pw_sim_vln:
         "Rscript pw_sim_vln.R"
         " " + config["sim_dir"]
         + "{wildcards.comp}"
-        " {wildcards.method}"
         " " + config["fig_dir"]
-        + "vis/sim/{wildcards.comp}"
+        + "sim/{wildcards.comp}"
         " {output.first}"
         " {output.second}"
     
@@ -185,9 +197,8 @@ rule pw_sim_vln_aggr:
         "Rscript pw_sim_vln_aggr.R"
         " " + config["sim_dir"]
         + "{wildcards.comp}"
-        " {wildcards.method}"
         " " + config["fig_dir"]
-        + "vis/sim/{wildcards.comp}"
+        + "sim/{wildcards.comp}"
         " {output}"
 
 rule plot_sim_lnpy:
@@ -238,11 +249,11 @@ rule plot_wntrna_compare_pp:
 rule plot_wntrna_hm:
     input:
         nosign = config["wntrna_dir"]
-        + "optim/kin/pc10/nl/pp.rds",
+        + "post/kin/pc10/nl/pp.rds",
         sign = config["wntrna_dir"]
-        + "optim/kin/pc10/nl/pp.sign.rds",
+        + "post/kin/pc10/nl/pp.sign.rds",
         order = config["wntrna_dir"]
-        + "optim/kin/pc10/nl/order.vec.rds",
+        + "post/kin/pc10/nl/order.vec.rds",
     output:
         config["fig_dir"] + "wntrna_hm.pdf"
     shell:
@@ -255,9 +266,9 @@ rule plot_wntrna_hm:
         
 rule plot_wntatac_gp:
     input:
-        config["exp_caqtl_dir"]
+        config["wntatac_dir"]
         + "pre/rsd/pc10/data.list.rds",
-        expand(config["dir"]
+        expand(config["wntatac_dir"]
                + "post/pc10/{method}/"
                + "fit/complete{start}_{size}.txt",
                method = method,
@@ -270,9 +281,9 @@ rule plot_wntatac_gp:
 
 rule plot_wntatac_co:
     input:
-        config["exp_caqtl_dir"]
+        config["wntatac_dir"]
         + "pre/rsd/pc10/data.list.rds",
-        expand(config["dir"]
+        expand(config["wntatac_dir"]
                + "post/pc10/{method}/"
                + "fit/complete{start}_{size}.txt",
                method = method,
@@ -285,12 +296,12 @@ rule plot_wntatac_co:
 
 rule plot_wntatac_hm:
     input:
-        nosign = config["exp_caqtl_dir"]
-        + "optim/pc10/nl/pp.rds",
-        sign = config["exp_caqtl_dir"]
-        + "optim/pc10/nl/pp.sign.rds",
-        order = config["exp_caqtl_dir"]
-        + "optim/pc10/nl/order.vec.rds",
+        nosign = config["wntatac_dir"]
+        + "post/pc10/nl/pp.rds",
+        sign = config["wntatac_dir"]
+        + "post/pc10/nl/pp.sign.rds",
+        order = config["wntatac_dir"]
+        + "post/pc10/nl/order.vec.rds",
     output:
         config["fig_dir"] + "wntatac_hm.pdf"
     shell:

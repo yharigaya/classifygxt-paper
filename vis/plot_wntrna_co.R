@@ -5,7 +5,7 @@ suppressPackageStartupMessages(library(classifygxt))
 source("utils.R")
 
 data.file <- "../derived_data/wntrna/pre/rsd/pc10/data.list.rds"
-in.dir <- "../derived_data/wntrna/kin/post/pc10/nl/fit"
+in.dir <- "../derived_data/wntrna/post/kin/pc10/nl/fit"
 fig.dir <- "../figures/vis"
 fig.file <- file.path(fig.dir, "wntrna_gp_co.pdf")
 
@@ -27,8 +27,8 @@ snp.vec <- data.list %>%
     map_chr(pluck("snp.id"))
 
 feat.name <- c(
-    "ENSG00000273611",
-    "ENSG00000287315",
+    "ENSG00000273611", 
+    "ENSG00000287315", 
     "ENSG00000152078")
 snp.name <- c(
     "chr17:36486677:G:A",
@@ -41,7 +41,7 @@ gene.name <- c(
 rs.vec <- c(
     "rs4796224",
     "rs10157612",
-    "rs7556223")
+    "rs7556223")    
 geno.vec <- c("0|0", "0|0", "0|0")
 
 # all(match(feat.name, feat.vec) ==
@@ -51,10 +51,8 @@ index.vec <- match(feat.name, feat.vec)
 gp.list <- pp.list <-
     vector("list", length(index.vec))
 
-i <- 1
-
 for (i in seq_along(index.vec)) {
-
+    
     # get index for the i-th rank
     index <- index.vec[i]
 
@@ -83,16 +81,16 @@ for (i in seq_along(index.vec)) {
                    breaks=c(0, 1, 2))
     p1 <- p1 + labs(title=title) +
         theme(plot.title=element_text(size=rel(1)))
-
+    
     # for pp plots
     pp <- fit %>% format_pp(co=TRUE)
     p2 <- pp %>% make_pp_plot
-
+    
     gp.list[[i]] <- p1
     pp.list[[i]] <- p2
 
 }
-
+    
 ((gp.list[[1]] / pp.list[[1]]) |
  (gp.list[[2]] / pp.list[[2]]) |
  (gp.list[[3]] / pp.list[[3]])) +

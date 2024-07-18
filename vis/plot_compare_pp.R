@@ -10,7 +10,7 @@ method.level <- c("nl", "lm", "rint")
 file.vec1 <- file.path(in.dir1, method.level, "pp.rds")
 file.vec2 <- file.path(in.dir2, method.level, "pp.rds")
 
-df.list <- vector("list", length(file.vec1))
+df.list <- vector("list", length(file.vec1)) 
 
 for (i in seq_along(file.vec1)) {
 
@@ -22,21 +22,18 @@ for (i in seq_along(file.vec1)) {
         readRDS %>%
         as.matrix %>%
         c
-
+    
     d <- data.frame(
         val1=vec1,
         val2=vec2,
         method=method.level[i])
     df.list[[i]] <- d
-
+        
 }
 
 df <- df.list %>%
     bind_rows %>%
     mutate(method=factor(method, levels=method.level))
-
-# save the data frame
-# saveRDS(df, out.file)
 
 # plot
 map.method <- c("log-NL", "log-LM", "RINT-LM") %>%
@@ -49,7 +46,7 @@ p <- ggplot() +
         size=0.01)
 p <- p +
     xlab("Polygenic") +
-    ylab("Donor")
+    ylab("Donor") 
 p <- p + scale_x_continuous(
              limits=c(0, 1),
              breaks=c(0, 0.5, 1),
@@ -63,6 +60,5 @@ p <- p +
         vars(method),
         labeller=labeller(method=map.method))
 p <- p + coord_equal()
-# p <- p + coord_equal(xlim=c(0, 1), ylim=c(0, 1))
 
 ggsave(filename=fig.file, plot=p, width=7, height=3.5)

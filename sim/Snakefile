@@ -54,6 +54,12 @@ rule all:
                gen = gen, fit = fit,
                method = method),
         expand(config["dir"]
+               + "comparison/{gen}-{fit}/pp.rds",
+               gen = gen, fit = fit),
+        expand(config["fig_dir"]
+               + "comparison/{gen}-{fit}/pp.pdf",
+               gen = gen, fit = fit),
+        expand(config["dir"]
                + "comparison/mcmc-bs/"
                "{gen}-{fit}/{method}/"
                "phi{phi1}_{phi2}_{phi3}/"
@@ -698,6 +704,29 @@ rule get_lnpy_for_map_lap:
         "Rscript get_lnpy_for_map_lap.R"
         " {input}"
         " {output}"
+
+rule plot_compare_pp:
+    input:
+       expand(config["dir"] +
+              "{comp}-hp/{{gen}}-{{fit}}/"
+              "{method}/{hp}/pp.rds",
+              comp = comp, method = method, hp = hp),
+    output:
+       data = config["dir"]
+       + "comparison/{gen}-{fit}/pp.rds",
+       fig = config["fig_dir"]
+       + "comparison/{gen}-{fit}/pp.pdf"
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_compare_pp.R"
+        " " + config["dir"]
+        + "mcmc-bs-hp/" # mcmc.bs dir
+        "{wildcards.gen}-{wildcards.fit}"        
+        " " + config["dir"]
+        + "map-lap-hp/" # map.lap dir
+        "{wildcards.gen}-{wildcards.fit}"        
+        " {output.data}"
+        " {output.fig}"
         
 rule get_pp_for_mcmc_bs:
     input:
@@ -742,29 +771,6 @@ rule get_pp_for_map_lap:
         " {input.fit}"
         " {input.data}"
         " {output}"
-
-rule plot_compare_pp:
-    input:
-       expand(config["dir"] +
-              "{comp}/{{gen}}-{{fit}}/"
-              "{method}/{hp}/pp.rds",
-              comp = comp, method = method, hp = hp),
-    output:
-       data = config["dir"]
-       + "comparison/{gen}-{fit}/pp.rds",
-       fig = config["fig_dir"]
-       + "comparison/{gen}-{fit}/pp.pdf"
-    shell:
-        "module add r/4.1.3; "
-        "Rscript plot_compare_pp.R"
-        " " + config["dir"]
-        + "mcmc-bs-hp/" # mcmc.bs dir
-        "{wildcards.gen}-{wildcards.fit}"        
-        " " + config["dir"]
-        + "map-lap-hp/" # map.lap dir
-        "{wildcards.gen}-{wildcards.fit}"        
-        " {output.data}"
-        " {output.fig}"
         
 rule post:
     input:

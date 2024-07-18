@@ -7,7 +7,7 @@ source("utils.R")
 data.file <- "../derived_data/wntrna/pre/rsd/pc10/data.list.rds"
 in.dir <- "../derived_data/wntrna/post/kin/pc10"
 fig.dir <- "../figures/vis"
-fig.file <- file.path(fig.dir, "wntrna_gp_all.pdf")
+fig.file <- file.path(fig.dir, "wntrna_gp.pdf")
 
 if (!dir.exists(fig.dir)) dir.create(fig.dir, recursive=TRUE)
 
@@ -73,7 +73,7 @@ for (i in seq_along(index.vec)) {
     geno <- geno.vec[i]
     geno.label <- get_geno_label(
         snp.id=snp.id, geno=geno)
-
+    
     file.vec <- file.path(
         in.dir, method.vec, "fit",
         paste0(
@@ -83,7 +83,7 @@ for (i in seq_along(index.vec)) {
     # for gp plots
     data <- data.list[[index]]
     n.sample <- length(data$y)
-
+    
     # for arrows
     if (i %in% c(1, 3)) {
         y <- data$y
@@ -95,11 +95,11 @@ for (i in seq_along(index.vec)) {
             y.end=c(y1, y2)) %>%
             mutate(method=factor("log-LM",
                                  levels=method.name))
-    }
-
+    }    
+        
     plot.list <- res.list %>%
         map(function(x) format_gp(data=data, fit=x))
-
+    
     input.list <- plot.list %>%
         map(pluck("input"))
     n.sample <- input.list[[1]] %>% nrow
@@ -127,7 +127,7 @@ for (i in seq_along(index.vec)) {
     p1 <- p1 + labs(title=title)
     p1 <- p1 + theme(plot.title=element_text(size=rel(1)))
     p1 <- p1 + facet_wrap(vars(method), scales="free_y")
-
+    
     if (i %in% c(1, 3)) {
         p1 <- p1 +
             geom_segment(
@@ -138,8 +138,8 @@ for (i in seq_along(index.vec)) {
                     length=unit(0.2, "cm"),
                     type="closed"),
                 inherit.aes=FALSE)
-    }
-
+    }    
+    
     # for pp plots
     pp <- res.list %>%
         map(format_pp) %>%
@@ -151,10 +151,10 @@ for (i in seq_along(index.vec)) {
     p2 <- pp %>% make_pp_plot
     p2 <- p2 +
         facet_wrap(vars(method), scales="free_y")
-
+    
     gp.list[[i]] <- p1
     pp.list[[i]] <- p2
-
+    
 }
 
 # assemble plots

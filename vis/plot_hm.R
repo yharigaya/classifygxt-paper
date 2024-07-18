@@ -17,20 +17,13 @@ plot_hm <- function(m) {
         ggplot(aes(x=pair, y=model, fill=pp)) +
         geom_tile()
 
-    # p <- p + scale_fill_viridis(discrete=FALSE)
     p <- p + scale_fill_viridis(
                  discrete=FALSE,
                  limits=c(0, 1),
                  breaks=c(0, 0.5, 1),
                  labels=c("0.0", "0.5", "1.0"))
     p <- p + scale_y_discrete(limits=rev)
-    # p <- p + geom_tile(color="white", size=0.1)
-    # p <- p + geom_tile(color="white", size=0.01)
     p <- p + labs(y="Model", x="Feature-SNP pairs")
-
-    # p <- p + theme(plot.title=element_text(size=rel(1.2), hjust=0.5))
-    # p <- p + theme(theme(plot.margin=unit(c(1, 1, 1, 1), "cm")))
-    # p <- p + theme(theme(plot.margin=margin(r=0)))
     p <- p + theme(axis.ticks=element_blank())
     p <- p + theme(axis.line=element_blank())
     p <- p + theme(
@@ -48,6 +41,13 @@ plot_hm <- function(m) {
 
     p
 }
+
+nosign.file <- "../derived_data/wntrna/optim/kin/pc10/nl/pp.rds"
+sign.file <- "../derived_data/wntrna/optim/kin/pc10/nl/pp.sign.rds"
+order.file <- "../derived_data/wntrna/optim/kin/pc10/nl/order.vec.rds"
+out.file <- "../figures/vis/wntrna_hm.pdf"
+
+file.exists(order.file)
 
 args <- commandArgs(TRUE)
 nosign.file <- as.character(args[1])

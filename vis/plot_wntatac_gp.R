@@ -7,7 +7,7 @@ source("utils.R")
 data.file <- "../derived_data/wntatac/pre/rsd/pc10/data.list.rds"
 in.dir <- "../derived_data/wntatac/post/pc10"
 fig.dir <- "../figures/vis"
-fig.file <- file.path(fig.dir, "wntatac_gp_all.pdf")
+fig.file <- file.path(fig.dir, "wntatac_gp.pdf")
 
 if (!dir.exists(fig.dir)) dir.create(fig.dir, recursive=TRUE)
 
@@ -74,12 +74,13 @@ for (i in seq_along(index.vec)) {
         in.dir, method.vec, "fit",
         paste0(
             "res", str_pad(index, 4, pad="0"), ".rds"))
+    
     res.list <- file.vec %>% map(readRDS)
 
     # for gp plots
     data <- data.list[[index]]
     n.sample <- length(data$y)
-
+    
     # for arrows
     if (i %in% 1:3) {
         y <- data$y
@@ -92,8 +93,8 @@ for (i in seq_along(index.vec)) {
             mutate(method=factor("log-LM",
                                  levels=method.name))
     }    
-  
-    plot.list <- fit.list %>%
+    
+    plot.list <- res.list %>%
         map(function(x) format_gp(data=data, fit=x))
 
     input.list <- plot.list %>%
@@ -104,7 +105,7 @@ for (i in seq_along(index.vec)) {
         mutate(method=rep(
                    method.name, each=n.sample)) %>%
         mutate(method=factor(method, levels=method.name))
-
+    
     fit.list <- plot.list %>%
         map(pluck("fit"))
     n.pt <- fit.list[[1]] %>% nrow
@@ -113,9 +114,9 @@ for (i in seq_along(index.vec)) {
         mutate(method=rep(
                    method.name, each=n.pt)) %>%
         mutate(method=factor(method, levels=method.name))
-
+    
     # create a ggplot2 object
-    p1 <- list(d.input=input.df, d.fit=fit.df) %>%
+    p1 <- list(input=input.df, fit=fit.df) %>%
         make_gp_plot
     p1 <- p1 + scale_x_continuous(
                    labels=geno.label,

@@ -3,3 +3,7 @@ wntrna_dir: "../derived_data/wntrna/"
 wntatac_dir: "../derived_data/wntatac/"
 dir: "../derived_data/vis/"
 fig_dir: "../figures/vis/"
+pc: [10]
+num_wntrna_pair: 98
+num_wntatac_pair: 1775
+size: 10

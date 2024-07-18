@@ -2,8 +2,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(classifygxt))
 
-fig.file <- "../figures/vis/sim/compare_pp.pdf"
-fig.dir <- "../figures/vis/sim"
+fig.file <- "../figures/vis/sim_compare_pp.pdf"
+fig.dir <- "../figures/vis"
 
 if (!dir.exists(fig.dir)) dir.create(fig.dir, recursive=TRUE)
 
