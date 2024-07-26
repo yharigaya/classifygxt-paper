@@ -11,7 +11,7 @@ Jordan M. Valone,
 Jason L. Stein,
 Michael I. Love\*,
 William Valdar\*.
-"Bayesian model selection for classifying gene-by-treatment interactions on molecular count phenotypes."
+"Probabilistic classification of gene-by-treatment interactions on molecular count phenotypes."
 (\* These authors contributed equally to this work.)
 
 The ClassifyGxT software is available from <https://github.com/yharigaya/classifygxt>.
