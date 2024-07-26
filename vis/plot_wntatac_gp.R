@@ -28,21 +28,28 @@ snp.vec <- data.list %>%
     map_chr(pluck("snp.id"))
 
 feat.name <- c(
-    "chr7_89914521-89915220",
-    "chr20_4716511-4717010",
+    # "chr7_89914521-89915220", # unstable
+    "chr5_102554041-102554990",
+    # "chr20_4716511-4717010",
     "chr17_82118351-82119190",
+    "chr2_120613861-120614840", # induced
     "chr8_4046751-4047130")
 snp.name <- c(
-    "chr7:89914871:C:T",
-    "chr20:4716775:A:G",
+    # "chr7:89914871:C:T", # unstable
+    "chr5:102554238:C:T",
+    # "chr20:4716775:A:G",
     "chr17:82118932:C:G",
+    "chr2:120614301:A:G", # induced
     "chr8:4067761:A:G")
 rs.vec <- c(
-    "rs10259722",
-    "rs6052791",
+    # "rs10259722",
+    "rs1875632",
+    # "rs6052791",
     "rs7218075",
+    "rs11886111", # induced
     "rs1035637")    
-geno.vec <- c("0|0", "0|0", "0|0", "1|1")
+# geno.vec <- c("0|0", "0|0", "0|0", "1|1")
+geno.vec <- c("1|1", "0|0", "1|1", "1|1")
 
 # all(match(feat.name, feat.vec) ==
 #     match(snp.name, snp.vec))
@@ -82,17 +89,17 @@ for (i in seq_along(index.vec)) {
     n.sample <- length(data$y)
     
     # for arrows
-    if (i %in% 1:3) {
-        y <- data$y
-        g <- data$g
-        t <- data$t
-        y1 <- min(y[g == 2 & t == 0])
-        y2 <- min(y[g == 2 & t == 1])
-        arrow <- data.frame(
-            y.end=c(y1, y2)) %>%
-            mutate(method=factor("log-LM",
-                                 levels=method.name))
-    }    
+    # if (i %in% 1:2) {
+    #     y <- data$y
+    #     g <- data$g
+    #     t <- data$t
+    #     y1 <- min(y[g == 2 & t == 0])
+    #     y2 <- min(y[g == 2 & t == 1])
+    #     arrow <- data.frame(
+    #         y.end=c(y1, y2)) %>%
+    #         mutate(method=factor("log-LM",
+    #                              levels=method.name))
+    # }    
     
     plot.list <- res.list %>%
         map(function(x) format_gp(data=data, fit=x))
@@ -125,17 +132,17 @@ for (i in seq_along(index.vec)) {
     p1 <- p1 + theme(plot.title=element_text(size=rel(1)))
     p1 <- p1 + facet_wrap(vars(method), scales="free_y")
     
-    if (i %in% 1:3) {
-        p1 <- p1 +
-            geom_segment(
-                mapping=aes(x=1.65, xend=1.85,
-                    y=y.end - 0.6, yend=y.end),
-                data=arrow,
-                arrow=arrow(
-                    length=unit(0.2, "cm"),
-                    type="closed"),
-                inherit.aes=FALSE)
-    }    
+    # if (i %in% 1:2) {
+    #     p1 <- p1 +
+    #         geom_segment(
+    #             mapping=aes(x=1.65, xend=1.85,
+    #                 y=y.end - 0.6, yend=y.end),
+    #             data=arrow,
+    #             arrow=arrow(
+    #                 length=unit(0.2, "cm"),
+    #                 type="closed"),
+    #             inherit.aes=FALSE)
+    # }    
     
     # for pp plots
     pp <- res.list %>%

@@ -28,25 +28,34 @@ snp.vec <- data.list %>%
 
 feat.name <- c(
     "ENSG00000267452",
-    "ENSG00000187231",
-    "ENSG00000144908",
+    # "ENSG00000187231",
+    # "ENSG00000144908",
+    "ENSG00000183780",
+    "ENSG00000077498", # induced
     "ENSG00000258922")
 snp.name <- c(
     "chr17:51439805:A:G",
-    "chr2:179239528:C:T",
-    "chr3:126226608:G:C",
+    # "chr2:179239528:C:T",
+    # "chr3:126226608:G:C",
+    "chr1:234224164:G:A",
+    "chr11:89168976:C:T", # induced 
     "chr15:92890706:T:G")
 gene.name <- c(
     "LINC02073",
-    "SESTD1",
-    "ALDH1L1",
+    # "SESTD1",
+    # "ALDH1L1",
+    "SLC35F3",
+    "TYR", # induced
     "ENSG00000258922")
 rs.vec <- c(
     "rs7212610",
-    "rs13026497",
-    "rs35458758",
+    # "rs13026497",
+    # "rs35458758",
+    "rs650866",
+    "rs10830237", # induced
     "rs4778055")
-geno.vec <- c("0|0", "0|0", "0|0", "1|1")
+# geno.vec <- c("0|0", "0|0", "0|0", "1|1")
+geno.vec <- c("0|0", "1|1", "1|1", "1|1")
 
 # all(match(feat.name, feat.vec) ==
 #     match(snp.name, snp.vec))
@@ -85,7 +94,7 @@ for (i in seq_along(index.vec)) {
     n.sample <- length(data$y)
     
     # for arrows
-    if (i %in% c(1, 3)) {
+    if (i == 1) {
         y <- data$y
         g <- data$g
         t <- data$t
@@ -128,7 +137,7 @@ for (i in seq_along(index.vec)) {
     p1 <- p1 + theme(plot.title=element_text(size=rel(1)))
     p1 <- p1 + facet_wrap(vars(method), scales="free_y")
     
-    if (i %in% c(1, 3)) {
+    if (i == 1) {
         p1 <- p1 +
             geom_segment(
                 mapping=aes(x=1.65, xend=1.85,

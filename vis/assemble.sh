@@ -6,16 +6,13 @@
 
 cd ../figures/vis
 
-mkdir main-figs
+mkdir -p main-figs
 
-cp schem_int.pdf main-figs/
-cp schem_model.pdf main-figs/
-cp schem_aa.pdf main-figs/
 cp sim_rocc_vln.pdf main-figs/
 cp wntrna_gp.pdf main-figs/
 cp wntrna_gp_co.pdf main-figs/
 
-mkdir supp-figs
+mkdir -p supp-figs
 
 cp sim/map-lap/calib.pdf supp-figs/sim_calib_map_lap.pdf
 cp sim/mcmc-bs/calib.pdf supp-figs/sim_calib_mcmc_bs.pdf

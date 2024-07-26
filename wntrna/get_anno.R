@@ -24,7 +24,7 @@ for (i in seq_len(22)) {
     geno <- geno.file %>% readRDS()
     sel <- grep(
         paste0("^chr", i, ":"), id$snp_id)
-    
+
     if (length(sel) == 0) next
 
     for (j in seq_along(sel)) {
@@ -33,7 +33,7 @@ for (i in seq_len(22)) {
         row <- as.data.frame(id[index, ])
         feat.id <- row$gene_id
         snp.id <- row$snp_id
-        
+
         if (all(pheno$feature_id != feat.id)) next
 
         pheno.df <- data.frame(
@@ -53,19 +53,24 @@ for (i in seq_len(22)) {
             d$sample,
             function(x) as.numeric(
                             unlist(strsplit(x, "_"))[3] == "1"))
-        
+
         d <- d[, c(1, 3, 5, 2, 4, 6)]
-        
+
+        # make the treatment coding more interpretable
+        treatment <- rep(0, nrow(d))
+        treatment[grep("_2$", d$sample)] <- 1
+        d$treatment <- treatment
+
         # if (sum(d$geno == 1) == 0 || sum(d$geno == 2) == 0) {
         #     next
-        # }    
+        # }
 
         data.list <- list(
             data=d,
             feat.id=feat.id,
             snp.id=snp.id)
         count <- count + 1
-        data.list.list[[count]] <- data.list 
+        data.list.list[[count]] <- data.list
         rm(d); rm(data.list)
 
     }

@@ -26,6 +26,10 @@ rule all:
                + "sim/{comp}/{method}/hist.pdf",
                comp = comp, method = method),
         config["fig_dir"] + "sim_compare_pp.pdf",
+        config["fig_dir"] + "sim_compare_sum_lnpy.pdf",
+        expand(config["fig_dir"]
+               + "sim/{comp}/calib.pdf",
+               comp = comp),
         expand(config["fig_dir"]
                + "sim/{comp}/rocc.pdf",
                comp = comp),
@@ -219,6 +223,19 @@ rule plot_sim_lnpy:
         " {input.map_lap}"
         " {output.data}"
         " {output.fig}"
+
+rule pw_sim_compare_sum_lnpy:
+    input:
+        expand(config["sim_dir"]
+               + "comparison/{gen}-{fit}/"
+               "compare.sum.lnpy.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"]
+        + "sim_compare_sum_lnpy.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_compare_sum_lnpy.R"
         
 rule pw_sim_compare_pp:
     input:
