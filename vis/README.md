@@ -1,8 +1,10 @@
 # `vis`
 
-This directory contains code for visualization.
+This directory contains a Snakemake workflow for visualization.
 The code under this directory takes as input the output from the workflows under the `sim`, `wntrna`, and `wntatac` directories.
-The final output files are summarized in the table below, which can be obtained by running `assemble.sh` after the snakemake workflow.
+The final output files are summarized in the table below, which can be obtained by running `assemble.sh` after the `snake.sh`.
+This set of figures was used for the initial submission.
+See [revision](https://github.com/yharigaya/classifygxt-paper/tree/main/revision) and [supp](https://github.com/yharigaya/classifygxt-paper/tree/main/supp) for the revision.
 
 |Figure|File name|
 |:-|:-|

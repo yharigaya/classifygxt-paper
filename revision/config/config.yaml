@@ -1,0 +1,20 @@
+dir: "../derived_data/revision/"
+fig_dir: "../figures/revision/"
+# bm_dir: "../benchmarks/performance/"
+sim_dir: "../derived_data/sim/"
+wntrna_dir: "../derived_data/wntrna/"
+wntatac_dir: "../derived_data/wntatac/"
+lb: 25
+ub: 250
+step: 25
+num_sim1: 800 # total number of pairs
+num_sim2: 8000 # total number of pairs
+num_wntrna: 98 # total number of pairs
+num_wntatac: 1775 # total number of pairs
+num_pair: 5 # number of pairs to be analyzed
+num_rep: 10 # number of replication
+pc: [10]
+size: 10 # batch size for mcmc
+size_hp: 100 # batch size for hp optimization
+seed: 1
+num_core: 4

@@ -1,0 +1,499 @@
+lb = config["lb"]
+ub = config["ub"]
+step = config["step"]
+num_sim1 = config["num_sim1"]
+num_sim2 = config["num_sim2"]
+seed = config["seed"]
+method = ["nl", "lm", "rint"]
+comp = ["map-lap", "mcmc-bs"]
+gen = ["noranef", "ranef"]
+fit = ["noranef", "ranef"]
+hp =["rest", "opt", "perm"]
+category = ["nogxt", "induced", "altered"]
+
+numbers = [x / 100.00 for x in range(lb, ub + 1, step)]
+phi1 = ["{:1.2f}".format(x) for x in numbers]
+phi2 = ["{:1.2f}".format(x) for x in numbers]
+phi3 = ["{:1.2f}".format(x) for x in numbers]
+
+all_sim1 = [format(number, "04") for number
+            in range(1, num_sim1 + 1)]
+all_sim2 = [format(number, "04") for number
+            in range(1, num_sim2 + 1)]
+
+rule all:
+    input:
+        expand(config["fig_dir"]
+               + "vis/sim/{comp}/{method}/hist.pdf",
+               comp = comp, method = method),
+        config["fig_dir"]
+        + "effect/mcmc-bs/procc_pw.pdf",
+        config["fig_dir"]
+        + "effect/mcmc-bs/rocc_pw.pdf",
+        expand(config["fig_dir"]
+               + "rocc/{comp}/procc.pdf",
+               comp = comp),       
+        expand(config["fig_dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/procc_all.pdf",
+               gen = gen, fit = fit),
+        expand(config["fig_dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/rocc_all.pdf",
+               gen = gen, fit = fit),
+        expand(config["dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/{hp}/rocc.rds",
+               gen = gen, fit = fit, hp = hp),
+        expand(config["fig_dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/{hp}/rocc.pdf",
+               gen = gen, fit = fit, hp = hp),
+        expand(config["dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/"
+               "{hp}/{method}/rocc.{category}.rds",
+               gen = gen, fit = fit, hp = hp,
+               method = method, category = category),
+        config["fig_dir"] + "vis/sim_rocc_vln.pdf",
+        expand(config["fig_dir"]
+               + "comparison/sim_compare_pp_{gen}.pdf",
+               gen = gen),
+        expand(config["dir"]
+               + "comparison/{gen}-{fit}/pp.rds",
+               gen = gen, fit = fit),
+        expand(config["fig_dir"]
+               + "comparison/{gen}-{fit}/pp.pdf",
+               gen = gen, fit = fit),
+        expand(config["fig_dir"]
+               + "rocc/{comp}/procc.pdf",
+               comp = comp),
+        config["dir"] + "summary/sim_opt.csv",
+        expand(config["dir"]
+               + "optim/{gen}-{fit}/{method}/ln.p.y.rds",
+               gen = gen, fit = fit, method = method),
+        config["fig_dir"] + "rocc/map-lap/rocc.pdf",
+        expand(config["dir"]
+               + "rocc/map-lap/{gen}-{fit}/rocc.rds",
+               gen = gen, fit = fit),
+        expand(config["fig_dir"]
+               + "rocc/map-lap/{gen}-{fit}/rocc.pdf",
+               gen = gen, fit = fit),       
+        expand(config["dir"]
+               + "rocc/map-lap/{gen}-{fit}/"
+               "{method}/rocc.{category}.rds",
+               gen = gen, fit = fit,
+               method = method, category = category),
+        expand(config["dir"]
+               + "rocc/map-lap/{gen}-{fit}/index.vec.rds",
+               gen = gen, fit = fit),        
+        expand(config["fig_dir"]
+               + "est/{comp}/scatter_all.pdf",
+               comp = comp),
+        expand(config["dir"]
+               + "est/{comp}/{gen}-{fit}/combined.rds",
+               gen = gen, fit = fit, comp = comp),
+        expand(config["fig_dir"]
+               + "est/{comp}/{gen}-{fit}/scatter.pdf",
+               gen = gen, fit = fit, comp = comp),
+        expand(config["dir"]
+               + "est/{comp}/{gen}-{fit}/{method}/res.rds",
+               gen = gen, fit = fit,
+               method = method, comp = comp),
+
+rule pw_sim_hist:
+    input:
+        expand(config["sim_dir"]
+               + "{{comp}}-hp/{gen}-{fit}/{{method}}/"
+               "opt/pp.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"]
+        + "vis/sim/{comp}/{method}/hist.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_hist.R"
+        " " + config["sim_dir"]
+        + "{wildcards.comp}-hp"
+        " {wildcards.comp}"
+        " {wildcards.method}"
+        " {output}"
+        
+rule pw_sim_procc_for_effect:
+    input:
+        expand(config["dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/"
+               "{hp}/rocc.rds",
+               gen = gen, fit = fit, hp = hp),
+    output:
+        config["fig_dir"]
+        + "effect/mcmc-bs/procc_pw.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_procc_for_effect.R"
+        " " + config["dir"]
+        + "effect/mcmc-bs"
+        " {output}"
+    
+rule pw_sim_rocc_for_effect:
+    input:
+        expand(config["dir"]
+               + "effect/mcmc-bs/{gen}-{fit}/"
+               "{hp}/rocc.rds",
+               gen = gen, fit = fit, hp = hp),
+    output:
+        config["fig_dir"]
+        + "effect/mcmc-bs/rocc_pw.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_rocc_for_effect.R"
+        " " + config["dir"]
+        + "effect/mcmc-bs"
+        " {output}"
+    
+rule assemble_procc_for_effect:
+    input:
+        expand(config["dir"]
+               + "effect/mcmc-bs/{{gen}}-{{fit}}/"
+               "{hp}/rocc.rds",
+               hp = hp),
+    output:
+        config["fig_dir"]
+        + "effect/mcmc-bs/{gen}-{fit}/procc_all.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_procc_for_effect.R"
+        " " + config["dir"]
+        + "effect/mcmc-bs/"
+        "{wildcards.gen}-{wildcards.fit}/"
+        " {output}"
+
+rule assemble_rocc_for_effect:
+    input:
+        expand(config["dir"]
+               + "effect/mcmc-bs/{{gen}}-{{fit}}/"
+               "{hp}/rocc.rds",
+               hp = hp),
+    output:
+        config["fig_dir"]
+        + "effect/mcmc-bs/{gen}-{fit}/rocc_all.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_rocc_for_effect.R"
+        " " + config["dir"]
+        + "effect/mcmc-bs/"
+        "{wildcards.gen}-{wildcards.fit}/"
+        " {output}"
+
+rule plot_rocc_for_effect:
+    input:
+        expand(config["dir"]
+               + "effect/mcmc-bs/{{gen}}-{{fit}}/"
+               "{{hp}}/{method}/rocc.{category}.rds",
+               method = method, category = category),
+    output:
+        data = config["dir"]
+        + "effect/mcmc-bs/{gen}-{fit}/{hp}/rocc.rds",
+        fig = config["fig_dir"]
+        + "effect/mcmc-bs/{gen}-{fit}/{hp}/rocc.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_rocc.R"
+        " " + config["dir"]
+        + "effect/mcmc-bs/"
+        "{wildcards.gen}-{wildcards.fit}/{wildcards.hp}/"
+        " {output.data}"
+        " {output.fig}"
+
+rule get_rocc_for_effect:
+    input:
+        config["sim_dir"]
+        + "mcmc-bs-hp/{gen}-{fit}/"
+        "{method}/{hp}/pp.rds",
+    output:    
+        config["dir"]
+        + "effect/mcmc-bs/{gen}-{fit}/"
+        "{hp}/{method}/rocc.{category}.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_rocc_for_effect.R"
+        " {input}"
+        " {wildcards.category}"
+        " {output}"
+
+rule plot_sim_rocc_vln:
+    input:
+        rocc = config["sim_dir"]
+        + "mcmc-bs/noranef-noranef/rocc.rds",
+        aggr = config["sim_dir"]
+        + "mcmc-bs/noranef-noranef/vln.aggr.rds",
+        co = config["sim_dir"]
+        + "post/noranef-noranef/vln.co.rds"
+    output:
+        config["fig_dir"] + "vis/sim_rocc_vln.pdf"
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_sim_rocc_vln.R"
+        " {input.rocc}"
+        " {input.aggr}"
+        " {input.co}"
+        " {output}"
+
+rule get_opt_sim:
+    input:
+        expand(config["dir"]
+               + "optim/{gen}-{fit}/{method}/ln.p.y.rds",
+               gen = gen, fit = fit, method = method)
+    output:
+        config["dir"] + "summary/sim_opt.csv"
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_opt_sim.R"
+
+rule plot_compare_pp:
+    input:
+        data = config["sim_dir"] +
+        "data/data.{gen}.rds",
+        pp1 = expand(config["sim_dir"]
+                    + "mcmc-bs-hp/{{gen}}-{{fit}}/"
+                    "{method}/{hp}/pp.rds",
+                    method = method, hp = hp),
+        pp2 = expand(config["dir"]
+                    + "map-lap-hp/{{gen}}-{{fit}}/"
+                    "{method}/{hp}/pp.rds",
+                    method = method, hp = hp),
+    output:
+        data = config["dir"]
+        + "comparison/{gen}-{fit}/pp.rds",
+        fig = config["fig_dir"]
+        + "comparison/{gen}-{fit}/pp.pdf"
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_compare_pp.R"
+        " {input.data}"
+        " " + config["sim_dir"]
+        + "mcmc-bs-hp/" # mcmc.bs dir
+        "{wildcards.gen}-{wildcards.fit}"        
+        " " + config["dir"]
+        + "map-lap-hp/" # map.lap dir
+        "{wildcards.gen}-{wildcards.fit}"        
+        " {output.data}"
+        " {output.fig}"
+        
+rule get_pp_for_map_lap:
+    input:
+        fit = config["dir"]
+        + "map-lap-hp/{gen}-{fit}/{method}/"
+        + "{hp}/fit.rds",
+        data = config["sim_dir"]
+        + "data/data.{gen}.rds"
+    output:
+        config["dir"]
+        + "map-lap-hp/{gen}-{fit}/{method}/"
+        + "{hp}/pp.rds",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_pp_for_map_lap.R"
+        " {input.fit}"
+        " {input.data}"
+        " {output}"
+
+rule get_marginal_llk:
+    input:
+        fit = expand(config["sim_dir"]
+                     + "optim/{{gen}}-{{fit}}/{{method}}/"
+                     "phi{phi1}_{phi2}_{phi3}/fit.rds",
+                     phi1 = phi1, phi2 = phi2, phi3 = phi3),
+        data = config["sim_dir"] + "data/data.{gen}.rds",
+    output:
+        config["dir"]
+        + "optim/{gen}-{fit}/{method}/"
+        + "ln.p.y.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_marginal_llk.R"
+        " " + config["sim_dir"]
+        + "optim/"
+        + "{wildcards.gen}-{wildcards.fit}/"
+        + "{wildcards.method}"
+        " {input.data}"
+        " {lb}"
+        " {ub}"
+        " {step}"
+        " {output}"
+        
+rule pw_sim_compare_pp:
+    input:
+        expand(config["dir"]
+               + "comparison/{{gen}}-{fit}/pp.rds",
+               fit = fit),
+    output:
+        config["fig_dir"]
+               + "comparison/sim_compare_pp_{gen}.pdf"       
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_compare_pp.R"
+        " {input}"
+        " {output}"
+
+# note that the input directory is sim
+rule pw_partial_rocc_for_mcmc_bs:
+    input:
+        expand(config["sim_dir"]
+               + "mcmc-bs/{gen}-{fit}/rocc.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"] + "rocc/mcmc-bs/procc.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_procc.R"
+        " " + config["sim_dir"] + "mcmc-bs"
+        " {output}"   
+
+# note that the input directory is revision        
+rule pw_partial_rocc_for_map_lap:
+    input:
+        expand(config["dir"]
+               + "rocc/map-lap/{gen}-{fit}/rocc.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"] + "rocc/map-lap/procc.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_procc.R"
+        " " + config["dir"] + "rocc/map-lap"
+        " {output}"
+
+rule pw_rocc:
+    input:
+        expand(config["dir"]
+               + "rocc/map-lap/{gen}-{fit}/rocc.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"] + "rocc/map-lap/rocc.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_sim_rocc.R"
+        " " + config["dir"]
+        + "rocc/map-lap"
+        " {output}"
+    
+rule plot_rocc:
+    input:
+        expand(config["dir"]
+               + "rocc/map-lap/{{gen}}-{{fit}}/"
+               "{method}/rocc.{category}.rds",
+               method = method,
+               category = category),
+    output:
+        data = config["dir"]
+        + "rocc/map-lap/{gen}-{fit}/rocc.rds",
+        fig = config["fig_dir"]
+        + "rocc/map-lap/{gen}-{fit}/rocc.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_rocc.R"
+        " " + config["dir"]
+        + "rocc/map-lap/"
+        "{wildcards.gen}-{wildcards.fit}"
+        " {output.data}"
+        " {output.fig}"
+
+rule get_rocc_for_map_lap:
+    input:
+        pp = config["sim_dir"]
+        + "map-lap-hp/{gen}-{fit}/"
+        "{method}/opt/pp.rds",
+        index = config["dir"]
+        + "rocc/map-lap/{gen}-{fit}/index.vec.rds"
+    output:    
+        config["dir"]
+        + "rocc/map-lap/{gen}-{fit}/"
+        "{method}/rocc.{category}.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_rocc.R"
+        " {input.pp}"
+        " {input.index}"
+        " {wildcards.category}"
+        " {output}"
+        
+rule get_index:
+    input:
+        expand(config["sim_dir"]
+               + "map-lap-hp/{{gen}}-{{fit}}/{method}/"
+               "opt/pp.rds",
+               method = method),
+    output:
+        config["dir"]
+        + "rocc/map-lap/{gen}-{fit}/index.vec.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_index.R"
+        " " + config["sim_dir"]
+        + "map-lap-hp/{wildcards.gen}-{wildcards.fit}"
+        " {output}"
+        
+rule pw_est:
+    input:
+        expand(config["dir"]
+               + "est/{{comp}}/{gen}-{fit}/combined.rds",
+               gen = gen, fit = fit),
+    output:
+        config["fig_dir"]
+        + "est/{comp}/scatter_all.pdf",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript pw_est.R"
+        " " + config["dir"] + "est/{wildcards.comp}"
+        " {wildcards.comp}"
+        " {output}"
+        
+rule plot_est:
+    input:
+        expand(config["dir"]
+               + "est/{{comp}}/{{gen}}-{{fit}}/"
+               "{method}/res.rds",
+               method = method),
+    output:
+        data = config["dir"]
+        + "est/{comp}/{gen}-{fit}/combined.rds",
+        fig = config["fig_dir"]
+        + "est/{comp}/{gen}-{fit}/scatter.pdf"
+    shell:
+        "module add r/4.1.3; "
+        "Rscript plot_est.R"
+        " " + config["dir"]
+        + "est/{wildcards.comp}/"
+        "{wildcards.gen}-{wildcards.fit}"
+        " {output.data}"
+        " {output.fig}"
+
+rule get_est_for_mcmc_bs:
+    input:
+        config["sim_dir"] + "data/data.{gen}.rds",
+    output:
+        config["dir"]
+        + "est/mcmc-bs/{gen}-{fit}/{method}/res.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_est_for_mcmc_bs.R"
+        " {input}"
+        " " + config["sim_dir"]
+        + "post/{wildcards.gen}-{wildcards.fit}/"
+        "{wildcards.method}/fit"
+        " {output}"
+        
+rule get_est_for_map_lap:
+    input:
+        data = config["sim_dir"] + "data/data.{gen}.rds",
+        lnpy = config["sim_dir"]
+        + "optim/{gen}-{fit}/{method}/ln.p.y.rds"
+    output:
+        config["dir"]
+        + "est/map-lap/{gen}-{fit}/{method}/res.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript get_est_for_map_lap.R"
+        " {input.data}"
+        " {input.lnpy}"
+        " " + config["sim_dir"]
+        + "optim/{wildcards.gen}-{wildcards.fit}/"
+        "{wildcards.method}"
+        " {output}"

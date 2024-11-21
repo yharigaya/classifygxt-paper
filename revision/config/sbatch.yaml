@@ -1,0 +1,13 @@
+---
+__default__:
+  time: "0-01:00"
+  threads: 1
+  mem: 4G
+  queue: "general"
+  error: "../logs/revision/%x_%j_%N.err"
+  output: "../logs/revision/%x_%j_%N.log"
+get_est:
+  time: "0-01:00"
+  threads: 1
+  mem: 8G
+  queue: "general"

@@ -5,17 +5,11 @@ cols <- c(rgb(230/255, 159/255, 0/255),
           rgb(86/255, 180/255, 233/255),
           rgb(0/255, 158/255, 115/255))
 
-in.dir <- "../derived_data/sim/mcmc-bs-hp/ranef-ranef"
-out.dir <- "../figures/sim/mcmc-bs-hp" 
-fig.file <- "../figures/sim/mcmc-bs-hp/vln_aggr_ranef_ranef.pdf"
-
 args <- commandArgs(TRUE)
 in.dir <- as.character(args[1])
 fig.dir <- as.character(args[2])
 out.file <- as.character(args[3])
 fig.file <- as.character(args[4])
-
-if (!dir.exists(out.dir)) dir.create(out.dir, recursive=TRUE)
 
 method.vec <- c("nl", "lm", "rint")
 method.name <- c("log-NL", "log-LM", "RINT-LM")

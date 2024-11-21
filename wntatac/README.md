@@ -1,6 +1,6 @@
 # `wntatac`
 
-This directory contains code for analyzing response caQTL data in human neural progenitor cells (hNPCs) treated with CHIR, an activator of the Wnt pathway.
+This directory contains a Snakemake workflow for analyzing response caQTL data in human neural progenitor cells (hNPCs) treated with CHIR, an activator of the Wnt pathway.
 See the following publication for information about the input files.
 Note that files containing individual genotype data can be accessed only upon request and approval.
 
@@ -17,8 +17,10 @@ Karen L Mohlke,
 Mark J Zylka,
 Michael I Love,
 Jason L Stein.
-"Wnt activity reveals context-specific genetic effects on gene regulation in neural progenitors."
-doi: <https://doi.org/10.1101/2023.02.07.527357>
+"Stimulating Wnt signaling reveals context-dependent genetic effects on gene regulation in primary human neural progenitors."
+*Nat Neurosci.* 2024 Sep 30. 
+doi: <https://doi.org/10.1038/s41593-024-01773-6>. 
+PMID: 39349663 
 (\* These authors contributed equally to this work.)
 
 ## Setup

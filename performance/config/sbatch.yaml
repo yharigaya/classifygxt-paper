@@ -1,0 +1,13 @@
+---
+__default__:
+  time: "0-01:00"
+  threads: 1
+  mem: 4G
+  queue: "general"
+  error: "../logs/performance/%x_%j_%N.err"
+  output: "../logs/performance/%x_%j_%N.log"
+get_runtime_for_wntrna:
+  time: "0-04:00"
+  threads: 4
+  mem: 8G
+  queue: "general"

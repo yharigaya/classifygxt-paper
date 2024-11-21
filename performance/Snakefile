@@ -1,0 +1,306 @@
+import random
+
+num_sim = config["num_sim"]
+num_wntrna = config["num_wntrna"]
+num_wntatac = config["num_wntatac"]
+num_pair = config["num_pair"]
+num_rep = config["num_rep"]
+pc = config["pc"]
+seed = config["seed"]
+num_core = config["num_core"]
+
+method = ["nl", "lm", "rint"]
+k_mat = ["id", "kin"]
+comp = ["map-lap", "mcmc-bs"]
+gen = ["noranef", "ranef"]
+fit = ["noranef", "ranef"]
+hp =["rest", "opt", "perm"]
+
+all_sim = [format(number, "04") for number
+           in range(1, num_sim + 1)]
+all_wntrna = [format(number, "04") for number
+              in range(1, num_wntrna + 1)]
+all_wntatac = [format(number, "04") for number
+               in range(1, num_wntatac + 1)]
+
+random.seed(1)
+index_sim = [format(number, "04") for number
+           in random.sample(range(0, num_sim), num_pair)]
+index_wntrna = [format(number, "04") for number
+           in random.sample(range(0, num_wntrna), num_pair)]
+index_wntatac = [format(number, "04") for number
+           in random.sample(range(0, num_wntatac), num_pair)]
+
+rule all:
+    input:
+        expand(config["dir"]
+               + "output/{comp}/wntatac/pc{pc}/{method}/"
+               "res.rds",
+               comp = comp, pc = pc, method = method),
+        expand(config["dir"]
+               + "output/{comp}/wntrna/{k_mat}/"
+               "pc{pc}/{method}/"
+               "res.rds",
+               comp = comp, k_mat = k_mat,
+               pc = pc, method = method),
+        expand(config["dir"]
+               + "output/{comp}/sim/{gen}-{fit}/{method}/"
+               "res.rds",
+               comp = comp, gen = gen, fit = fit,
+               method = method),
+        expand(config["dir"]
+               + "convergence/wntatac/pc{pc}/{method}/"
+               "rhat.rds",
+               pc = pc, method = method),
+        expand(config["dir"]
+               + "convergence/wntrna/{k_mat}/pc{pc}/{method}/"
+               "rhat.rds",
+               k_mat = k_mat, pc = pc, method = method),
+        expand(config["dir"]
+               + "convergence/sim/{gen}-{fit}/{method}/{hp}/"
+               "rhat.rds",
+               gen = gen, fit = fit,
+               method = method, hp = hp),
+        expand(config["dir"]
+               + "runtime/{comp}/wntatac/pc{pc}/{method}/"
+               "res{index}.rds",
+               comp = comp, pc = pc,
+               method = method, index = index_wntatac),
+        expand(config["dir"]
+               + "runtime/{comp}/wntrna/{k_mat}/"
+               "pc{pc}/{method}/"
+               "res{index}.rds",
+               comp = comp, k_mat = k_mat, pc = pc,
+               method = method, index = index_wntrna),
+        expand(config["dir"]
+               + "runtime/{comp}/sim/{gen}-{fit}/{method}/"
+               "res{index}.rds",
+               comp = comp, gen = gen, fit = fit,
+               method = method, index = index_sim),
+
+rule format_output_for_wntatac:
+    input:
+        expand(config["dir"]
+               + "runtime/{{comp}}/wntatac/pc{{pc}}/"
+               "{{method}}/res{index}.rds",
+               index = index_wntatac),
+        expand(config["bm_dir"]
+               + "runtime/{{comp}}/wntatac/pc{{pc}}/"
+               "{{method}}/bm{index}.txt",
+               index = index_wntatac),
+    output:
+        config["dir"]
+        + "output/{comp}/wntatac/pc{pc}/{method}/"
+        "res.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript format_output.R"
+        " " + config["dir"]
+        + "runtime/{wildcards.comp}/wntatac/"
+        "pc{wildcards.pc}/{wildcards.method}/"
+        " " + config["bm_dir"]
+        + "runtime/{wildcards.comp}/wntatac/"
+        "pc{wildcards.pc}/{wildcards.method}/"
+        " {output}"
+
+rule format_output_for_wntrna:
+    input:
+        expand(config["dir"]
+               + "runtime/{{comp}}/wntrna/{{k_mat}}/"
+               "pc{{pc}}/{{method}}/res{index}.rds",
+               index = index_wntrna),
+        expand(config["bm_dir"]
+               + "runtime/{{comp}}/wntrna/{{k_mat}}/"
+               "pc{{pc}}/{{method}}/bm{index}.txt",
+               index = index_wntrna),
+    output:
+        config["dir"]
+        + "output/{comp}/wntrna/{k_mat}/pc{pc}/{method}/"
+        "res.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript format_output.R"
+        " " + config["dir"]
+        + "runtime/{wildcards.comp}/wntrna/"
+        "{wildcards.k_mat}/pc{wildcards.pc}/"
+        "{wildcards.method}/"
+        " " + config["bm_dir"]
+        + "runtime/{wildcards.comp}/wntrna/"
+        "{wildcards.k_mat}/pc{wildcards.pc}/"
+        "{wildcards.method}/"
+        " {output}"
+
+rule format_output_for_sim:
+    input:
+        expand(config["dir"]
+               + "runtime/{{comp}}/sim/{{gen}}-{{fit}}/"
+               "{{method}}/res{index}.rds",
+               index = index_sim),
+        expand(config["bm_dir"]
+               + "runtime/{{comp}}/sim/{{gen}}-{{fit}}/"
+               "{{method}}/bm{index}.txt",
+               index = index_sim),
+    output:
+        config["dir"]
+        + "output/{comp}/sim/{gen}-{fit}/{method}/"
+        "res.rds",
+    shell:
+        "module add r/4.1.3; "
+        "Rscript format_output.R"
+        " " + config["dir"]
+        + "runtime/{wildcards.comp}/sim/"
+        "{wildcards.gen}-{wildcards.fit}/{wildcards.method}/"
+        " " + config["bm_dir"]
+        + "runtime/{wildcards.comp}/sim/"
+        "{wildcards.gen}-{wildcards.fit}/{wildcards.method}/"
+        " {output}"
+        
+rule get_rhat_for_wntatac:
+    input:
+        expand(config["wntatac_dir"]
+               + "post/pc{{pc}}/{{method}}/fit/"
+               "res{index}.rds",
+               index = all_wntrna)
+    output:
+        config["dir"]
+        + "convergence/wntatac/pc{pc}/{method}/"
+        "rhat.rds",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_rhat.R"
+        " " + config["wntatac_dir"] +
+        "post/pc{wildcards.pc}/"
+        "{wildcards.method}/fit"
+        " sample"
+        " {output}"
+        
+rule get_rhat_for_wntrna:
+    input:
+        expand(config["wntrna_dir"]
+               + "post/{{k_mat}}/pc{{pc}}/{{method}}/fit/"
+               "res{index}.rds",
+               index = all_wntrna)
+    output:
+        config["dir"]
+        + "convergence/wntrna/{k_mat}/pc{pc}/{method}/"
+        "rhat.rds",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_rhat.R"
+        " " + config["wntrna_dir"] +
+        "post/{wildcards.k_mat}/"
+        "pc{wildcards.pc}/{wildcards.method}/fit"
+        " sample"
+        " {output}"
+
+rule get_rhat_for_sim:
+    input:
+        expand(config["sim_dir"]
+               + "mcmc-bs-hp/{{gen}}-{{fit}}/"
+               "{{method}}/{{hp}}/fit/res{index}.rds",
+               index = all_sim)
+    output:
+        config["dir"]
+        + "convergence/sim/{gen}-{fit}/{method}/{hp}/"
+        "rhat.rds",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_rhat.R"
+        " " + config["sim_dir"] +
+        "mcmc-bs-hp/{wildcards.gen}-{wildcards.fit}/"
+        "{wildcards.method}/{wildcards.hp}/fit"
+        " summary"
+        " {output}"
+
+rule get_runtime_for_wntatac:
+    input:
+        data = config["wntatac_dir"]
+        + "pre/rsd/pc{pc}/data.list.rds",
+        tu_lambda = config["wntatac_dir"]
+        + "pre/tu.lambda.rds",
+        lnpy = config["wntatac_dir"]
+        + "optim/pc{pc}/{method}/ln.p.y.rds",
+    output:
+        config["dir"]
+        + "runtime/{comp}/wntatac/pc{pc}/{method}/"
+        "res{index}.rds",
+    benchmark:
+        config["bm_dir"]
+        + "runtime/{comp}/wntatac/pc{pc}/{method}/"
+        "bm{index}.txt",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_runtime.R"
+        " {input.data}"
+        " {input.tu_lambda}"
+        " {input.lnpy}"
+        " {wildcards.index}"
+        " {wildcards.comp}"
+        " {num_rep}"
+        " {num_core}"
+        " {seed}"
+        " {output}"
+        
+rule get_runtime_for_wntrna:
+    input:
+        data = config["wntrna_dir"]
+        + "pre/rsd/pc{pc}/data.list.rds",
+        tu_lambda = config["wntrna_dir"]
+        + "pre/tu.lambda.{k_mat}.rds",
+        lnpy = config["wntrna_dir"]
+        + "optim/{k_mat}/pc{pc}/{method}/ln.p.y.rds",
+    output:
+        config["dir"]
+        + "runtime/{comp}/wntrna/{k_mat}/pc{pc}/{method}/"
+        "res{index}.rds",
+    benchmark:
+        config["bm_dir"]
+        + "runtime/{comp}/wntrna/{k_mat}/pc{pc}/{method}/"
+        "bm{index}.txt",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_runtime.R"
+        " {input.data}"
+        " {input.tu_lambda}"
+        " {input.lnpy}"
+        " {wildcards.index}"
+        " {wildcards.comp}"
+        " {num_rep}"
+        " {num_core}"
+        " {seed}"
+        " {output}"
+
+rule get_runtime_for_sim:
+    input:
+        data = config["sim_dir"]
+        + "data/subset.{gen}.rds",
+        tu_lambda = config["sim_dir"]
+        + "data/tu.lambda.rds",
+        lnpy = config["sim_dir"]
+        + "optim/{gen}-{fit}/{method}/ln.p.y.rds",
+    output:
+        config["dir"]
+        + "runtime/{comp}/sim/{gen}-{fit}/{method}/"
+        "res{index}.rds",
+    benchmark:
+        config["bm_dir"]
+        + "runtime/{comp}/sim/{gen}-{fit}/{method}/"
+        "bm{index}.txt",
+    shell:
+        "module add gcc/11.2.0; "
+        "module add r/4.1.3; "
+        "Rscript get_runtime.R"
+        " {input.data}"
+        " {input.tu_lambda}"
+        " {input.lnpy}"
+        " {wildcards.index}"
+        " {wildcards.comp}"
+        " {num_rep}"
+        " {num_core}"
+        " {seed}"
+        " {output}"
